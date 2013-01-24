@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DynamicElementsStorage">
+    <option name="containingClasses">
+      <map>
+        <entry key="maus.eirik.cobconv.Main">
+          <value>
+            <DClassElement>
+              <option name="name" value="maus.eirik.cobconv.Main" />
+              <option name="myName" value="maus.eirik.cobconv.Main" />
+              <option name="myMethods">
+                <set>
+                  <DMethodElement>
+                    <option name="name" value="run" />
+                    <option name="static" value="false" />
+                    <option name="type" value="void" />
+                    <option name="myPairs">
+                      <list>
+                        <ParamInfo>
+                          <option name="name" value="printStream" />
+                          <option name="type" value="java.io.PrintStream" />
+                        </ParamInfo>
+                      </list>
+                    </option>
+                    <option name="myType" value="void" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="run" />
+                  </DMethodElement>
+                </set>
+              </option>
+            </DClassElement>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
+

@@ -2,23 +2,30 @@ package maus.eirik.cobconv
 
 import org.junit.Test
 
+import static junit.framework.Assert.assertEquals
+
 /**
- * Created with IntelliJ IDEA.
- * User: Eirik
- * Date: 15.01.13
- * Time: 21:53
- * To change this template use File | Settings | File Templates.
  */
 class ConfigTest {
 
     @Test
     def void defaultConfigShouldContainDefaultSettings() {
-        assertThat Config.defaults().getConfigFile(), isNull();
+        //assertThat Config.defaults().getConfigFile(), isNull();
         // todo: more asserts
     }
 
     @Test
+    def void findOptionShouldFindFieldForBothSettingAndUnsetting() {
+        assertEquals(Config.class.getDeclaredField("inputCharset"), Config.findOption("-i"))
+    }
+
+    @Test
+    def void checkListToStackConversion() {
+        Stack<String> s = new Stack<String>();
+        s.addAll(["a", "b", "c"].reverse());
+        assertEquals("a", s.pop());
+    }
+    @Test
     def void helpOptionShouldPrintSomeInfo() {
-        Config.
     }
 }
