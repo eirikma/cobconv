@@ -1,7 +1,10 @@
 package maus.eirik.cli
 
+import groovyjarjarcommonscli.CommandLine
 import groovyjarjarcommonscli.GnuParser
 import groovyjarjarcommonscli.Options
+
+import java.lang.reflect.Field
 
 
 /**
@@ -11,9 +14,38 @@ import groovyjarjarcommonscli.Options
 class OptionUtil {
     public static <T> T parseParameters(T config, String[] args) {
         Options cliOptions = readAnnotatedOptionFields(config)
+
+        // todo: look at config.class for annotation deciding which parser to use
         GnuParser parser = new GnuParser();
-        parser.parse(cliOptions, args);
-        if (cliOptions.)
+        final CommandLine commandLine = parser.parse(cliOptions, args);
+
+        // todo: validate and print usage if not okay.
+
+        commandLine.options.each { o ->
+             if (o.isRequired() && o. takesParameter(o.field) && o.valuesList.isEmpty()) {
+                 printUsage(config);
+                 throw new IllegalArgumentException("illegal arguent");
+             }
+        }
+
+        // todo put values into config
+        commandLine.options.each { o ->
+            o.field.accessible true
+            o.field.set(config, toFieldType(o.field, o.values));
+        }
+        return config;
+    }
+
+    private static <T> T toFieldType(Field f, List<String> values) {
+        switch (f.type) {
+            case Boolean.class:
+            case Boolean.TYPE:
+                return values[0].startsWith("+") ? false : true;
+            case Integer.class:
+            case Integer.TYPE:
+                return Integer.valueOf(values[0]);
+        }
+        return null;
     }
 
     static def <T> Options readAnnotatedOptionFields(T configObject) {
@@ -28,15 +60,36 @@ class OptionUtil {
             collectOptionsFrom(tClass.superclass, options)
         }
         tClass.declaredFields.each { f ->
-            Option o = f.getAnnotation(Option.class);
+            final Option o = f.getAnnotation(Option.class);
             if (o != null) {
-                options.addOption(new groovyjarjarcommonscli.Option(
-                        o.shortHand(),
-                        o.value(),
-                        ![Boolean.TYPE, Boolean.class].contains(f.type),
-                        o.help()
-                ));
+                options.addOption(createCommonsCliOption(o, f));
             }
         }
+    }
+
+
+    private static groovyjarjarcommonscli.Option createCommonsCliOption(Option o, Field f) {
+        return new CommonsCliOption(o, f);
+    }
+
+    static class CommonsCliOption extends groovyjarjarcommonscli.Option {
+        Option o;
+        Field f;
+
+        CommonsCliOption(Option o, Field f) {
+            super(o.shortHand(), o.value(), takesParameter(f), o.help());
+            this.o = o;
+            this.f = f;
+            setRequired(!o.optional());
+            if (!f.type.isArray()) {
+                setArgs(takesParameter(f) ? 1 : 0)
+            }
+        }
+
+        def annotation = o;
+        def field = f;
+    }
+    static boolean takesParameter(Field f) {
+        return ![Boolean.TYPE, Boolean.class].contains(f.type);
     }
 }

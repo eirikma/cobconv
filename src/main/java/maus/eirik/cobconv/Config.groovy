@@ -9,13 +9,13 @@ class Config {
     private boolean valid = true;
     private String errorMsg = null;
 
-    @Option(value = "configFile", shortHand = c,
+    @Option(value = "configFile", shortHand = "c",
             help = """Read configuration from a properties file. \n
                     Options should use long form and remove leading dashes. """)
     private File configFile = null;
 
     @Option(
-            value = "incharset", shortHand = i,
+            value = "incharset", shortHand = "i",
             help = """Input character set, default IBM-1144"""
     )
     private String inputCharset = "IBM-1144";

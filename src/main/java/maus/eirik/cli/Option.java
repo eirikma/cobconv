@@ -1,4 +1,4 @@
-package maus.eirik.cli
+package maus.eirik.cli;
 
 
 import java.lang.annotation.Documented;
@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Option {
     String value();
-    char shortHand();
+    String shortHand();
     String help();
-
+    boolean optional() default false;
 }
