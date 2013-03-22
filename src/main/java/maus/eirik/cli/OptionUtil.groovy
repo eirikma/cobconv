@@ -2,7 +2,10 @@ package maus.eirik.cli
 
 import groovyjarjarcommonscli.CommandLine
 import groovyjarjarcommonscli.GnuParser
+import groovyjarjarcommonscli.GroovyPosixParser
 import groovyjarjarcommonscli.Options
+import groovyjarjarcommonscli.Parser
+import groovyjarjarcommonscli.PosixParser
 
 import java.lang.reflect.Field
 
@@ -16,37 +19,58 @@ class OptionUtil {
         Options cliOptions = readAnnotatedOptionFields(config)
 
         // todo: look at config.class for annotation deciding which parser to use
-        GnuParser parser = new GnuParser();
+        Parser parser = new GnuParser();
         final CommandLine commandLine = parser.parse(cliOptions, args);
 
         // todo: validate and print usage if not okay.
 
         commandLine.options.each { o ->
-             if (o.isRequired() && o. takesParameter(o.field) && o.valuesList.isEmpty()) {
+            CommonsCliOption cco = o;
+             if (isValidOption(cco)) {
                  printUsage(config);
                  throw new IllegalArgumentException("illegal arguent");
              }
         }
 
-        // todo put values into config
+
         commandLine.options.each { o ->
             CommonsCliOption cco = ((CommonsCliOption)o);
             cco.field.setAccessible(true);
-            cco.field.set(config, toFieldType(cco.field, o.values));
+            cco.field.set(config, toFieldType(cco.field, cco.field.get(config),  cco));
         }
         return config;
     }
 
-    private static <T> T toFieldType(Field f, List<String> values) {
+    private static boolean isValidOption(CommonsCliOption cco) {
+        return cco.isRequired() &&
+                cco.takesParameter(cco.field) &&
+                cco.valuesList.isEmpty()
+    }
+
+    private static <T> T toFieldType(Field f, Object currentValue, CommonsCliOption option) {
         switch (f.type) {
+            case String.class:
+                return option.value;
+                break;
             case Boolean.class:
             case Boolean.TYPE:
-                return values == null ? false : values[0].startsWith("+") ? false : true;
+                return currentValue == false ? true : currentValue == true ? false : currentValue == null ? true : true;
             case Integer.class:
             case Integer.TYPE:
-                return values == null ? 0 : Integer.valueOf(values[0]);
+                return  toInteger(currentValue, option.getValue())
+            case File.class:
+                 return option.value == null ? currentValue : new File(option.value);
+
+            case File[].class:
+
+            default:
+                return null;
         }
         return null;
+    }
+
+    private static Integer toInteger(Object currentValue, String value) {
+        return value == null ? currentValue : value == null ? null :  Integer.parseInt(value.trim());
     }
 
     static def <T> Options readAnnotatedOptionFields(T configObject) {
