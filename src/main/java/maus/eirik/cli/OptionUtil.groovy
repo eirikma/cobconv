@@ -30,8 +30,9 @@ class OptionUtil {
 
         // todo put values into config
         commandLine.options.each { o ->
-            o.field.accessible true
-            o.field.set(config, toFieldType(o.field, o.values));
+            CommonsCliOption cco = ((CommonsCliOption)o);
+            cco.field.setAccessible(true);
+            cco.field.set(config, toFieldType(cco.field, o.values));
         }
         return config;
     }
@@ -40,10 +41,10 @@ class OptionUtil {
         switch (f.type) {
             case Boolean.class:
             case Boolean.TYPE:
-                return values[0].startsWith("+") ? false : true;
+                return values == null ? false : values[0].startsWith("+") ? false : true;
             case Integer.class:
             case Integer.TYPE:
-                return Integer.valueOf(values[0]);
+                return values == null ? 0 : Integer.valueOf(values[0]);
         }
         return null;
     }
@@ -77,18 +78,19 @@ class OptionUtil {
         Field f;
 
         CommonsCliOption(Option o, Field f) {
-            super(o.shortHand(), o.value(), takesParameter(f), o.help());
+            super(o.shortHand(), o.value(), OptionUtil.takesParameter(f), o.help());
             this.o = o;
             this.f = f;
             setRequired(!o.optional());
             if (!f.type.isArray()) {
-                setArgs(takesParameter(f) ? 1 : 0)
+                setArgs(OptionUtil.takesParameter(f) ? 1 : 0)
             }
         }
 
         def annotation = o;
         def field = f;
     }
+
     static boolean takesParameter(Field f) {
         return ![Boolean.TYPE, Boolean.class].contains(f.type);
     }

@@ -15,6 +15,9 @@ public class OptionsTest {
         class MyConfig {
             @Option(value = "define", shortHand = "d", help = "set a random flag")
             private boolean flag = false;
+
+            @Option(value = "other", shortHand = "o", help = "set a other flag", optional = true)
+            private boolean other = false;
         }
 
         MyConfig config = OptionUtil.parseParameters(new MyConfig(), new String[]{"-d"});
